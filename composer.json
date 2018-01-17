@@ -1,5 +1,5 @@
 {
-    "name":        "webino/webino-debug",
+    "name":        "joacub/webino-debug",
     "description": "Debugging module for Webino™",
     "type":        "library",
     "license":     "BSD-3-Clause",
@@ -23,25 +23,25 @@
     "prefer-stable": true,
     "require": {
         "php": "~7.1",
-        "zendframework/zend-eventmanager": "2.*",
-        "zendframework/zend-modulemanager": "2.*",
-        "zendframework/zend-servicemanager": "2.*",
-        "zendframework/zend-stdlib": "2.*",
-        "tracy/tracy": "~2.4"
+        "zendframework/zend-eventmanager": "*",
+        "zendframework/zend-modulemanager": "*",
+        "zendframework/zend-servicemanager": "*",
+        "zendframework/zend-stdlib": "*",
+        "tracy/tracy": "dev-master"
     },
     "suggest": {
         "zendframework/zend-version": "Debugger info panel ZF2 version"
     },
     "require-dev": {
         "webino/webino-dev": "dev-develop",
-        "zendframework/zend-version": "2.*",
-        "zendframework/zend-console": "2.*",
-        "zendframework/zend-loader": "2.*",
-        "zendframework/zend-view": "2.*",
-        "zendframework/zend-http": "2.*",
-        "zendframework/zend-log": "2.*",
-        "zendframework/zend-mvc": "2.*",
-        "zendframework/zend-di": "2.*"
+        "zendframework/zend-version": "*",
+        "zendframework/zend-console": "*",
+        "zendframework/zend-loader": "*",
+        "zendframework/zend-view": "*",
+        "zendframework/zend-http": "*",
+        "zendframework/zend-log": "*",
+        "zendframework/zend-mvc": "*",
+        "zendframework/zend-di": "*"
     },
     "autoload": {"psr-0": {"WebinoDebug": "src/"}},
     "extra": {
