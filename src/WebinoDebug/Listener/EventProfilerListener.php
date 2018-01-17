@@ -9,15 +9,18 @@
 
 namespace WebinoDebug\Listener;
 
+use Tracy\Debugger;
 use WebinoDebug\Service\EventProfiler;
 use Zend\EventManager\EventInterface;
+use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\ListenerAggregateInterface;
 use Zend\EventManager\SharedEventManagerInterface;
-use Zend\EventManager\SharedListenerAggregateInterface;
+use Zend\ModuleManager\Listener\ServiceListenerInterface;
 
 /**
  * Class EventProfilerListener
  */
-class EventProfilerListener implements SharedListenerAggregateInterface
+class EventProfilerListener
 {
     /**
      * Event highest priority
@@ -45,16 +48,17 @@ class EventProfilerListener implements SharedListenerAggregateInterface
     /**
      * {@inheritdoc}
      */
-    public function attachShared(SharedEventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = self::HIGHEST_PRIORITY)
     {
-        $this->listeners[] = $events->attach('*', '*', [$this, 'onAnyEvent'], self::HIGHEST_PRIORITY);
+        $this->listeners[] = $events->getSharedManager()->attach('*', '*', [$this, 'onAnyEvent'], $priority);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function detachShared(SharedEventManagerInterface $events)
+    public function detach(EventManagerInterface $events)
     {
+        $events = $events->getSharedManager();
         foreach ($this->listeners as $key => $listener) {
             if ($events->detach('*', '*', $listener)) {
                 unset($this->listeners[$key]);

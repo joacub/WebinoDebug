@@ -48,6 +48,7 @@ class Debugger implements DebuggerInterface
             $_options->getEmail()
         );
 
+        Tracy::$editor = $_options->getEditor() . '://open/?file=%file&line=%line';
         Tracy::$strictMode = $_options->isStrict();
         Tracy::$showBar    = $_options->showBar();
         Tracy::$maxDepth   = $_options->getMaxDepth();

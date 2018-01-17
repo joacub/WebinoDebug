@@ -33,30 +33,31 @@ class Module implements Feature\InitProviderInterface
         $services->setFactory(ModuleOptionsFactory::SERVICE, ModuleOptionsFactory::class);
         $services->setFactory(DebuggerFactory::SERVICE, DebuggerFactory::class);
 
-        /** @var ModuleOptions $options */
-        $options = $services->get(ModuleOptionsFactory::SERVICE);
-        if ($options->isDisabled()) {
-            return;
-        }
-
-        // start session for AJAX exception debug support
-        session_status() === PHP_SESSION_ACTIVE or session_start();
-
-        // init debugger
-        $debugger = $services->get(DebuggerFactory::SERVICE);
-
-        // create bar panels
-        $showBar = $options->showBar();
-        if ($showBar) {
-            foreach ($options->getBarPanels() as $id => $barPanel) {
-                $debugger->setBarPanel(new $barPanel($modules), $id);
-            }
-        }
-
-        // finish debugger init
         $modules->getEventManager()->attach(
             ModuleEvent::EVENT_LOAD_MODULES_POST,
-            function () use ($services, $debugger, $options, $showBar) {
+            function () use ($services, $modules) {
+
+
+                /** @var ModuleOptions $options */
+                $options = $services->get(ModuleOptionsFactory::SERVICE);
+
+                if ($options->isDisabled()) {
+                    return;
+                }
+
+                // start session for AJAX exception debug support
+                session_status() === PHP_SESSION_ACTIVE or session_start();
+
+                // init debugger
+                $debugger = $services->get(DebuggerFactory::SERVICE);
+
+                // create bar panels
+                $showBar = $options->showBar();
+                if ($showBar) {
+                    foreach ($options->getBarPanels() as $id => $barPanel) {
+                        $debugger->setBarPanel(new $barPanel($modules), $id);
+                    }
+                }
 
                 // init bar panels
                 if ($showBar) {
@@ -70,5 +71,6 @@ class Module implements Feature\InitProviderInterface
                 empty($templateMap) or $services->get('ViewTemplateMapResolver')->merge($templateMap);
             }
         );
+
     }
 }

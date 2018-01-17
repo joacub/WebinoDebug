@@ -10,6 +10,7 @@
 namespace WebinoDebug\Options;
 
 use WebinoDebug\Debugger\Bar\ConfigPanel;
+use WebinoDebug\Debugger\Bar\DumpPanel;
 use WebinoDebug\Debugger\Bar\EventPanel;
 use WebinoDebug\Debugger\Bar\InfoPanel;
 use Zend\Stdlib\AbstractOptions;
@@ -40,7 +41,7 @@ class DebuggerOptions extends AbstractOptions
     protected $barPanels = [
         'WebinoDebug:info'   => InfoPanel::class,
         'WebinoDebug:config' => ConfigPanel::class,
-        'WebinoDebug:events' => EventPanel::class,
+//        'WebinoDebug:events' => EventPanel::class,
     ];
 
     /**
@@ -57,6 +58,11 @@ class DebuggerOptions extends AbstractOptions
      * @var string
      */
     protected $email = '';
+
+    /**
+     * @var string
+     */
+    protected $editor = 'editor';
 
     /**
      * @var int
@@ -270,4 +276,21 @@ class DebuggerOptions extends AbstractOptions
         $this->maxLength = (int) $maxLength;
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    public function getEditor(): string
+    {
+        return $this->editor;
+    }
+
+    /**
+     * @param string $editor
+     */
+    public function setEditor(string $editor)
+    {
+        $this->editor = $editor;
+    }
+
 }

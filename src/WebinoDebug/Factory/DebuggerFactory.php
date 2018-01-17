@@ -9,6 +9,7 @@
 
 namespace WebinoDebug\Factory;
 
+use Interop\Container\ContainerInterface;
 use WebinoDebug\Options\ModuleOptions;
 use WebinoDebug\Service\Debugger;
 use WebinoDebug\Service\DebuggerInterface;
@@ -27,13 +28,22 @@ class DebuggerFactory implements FactoryInterface
     const SERVICE = 'Debugger';
 
     /**
-     * @param ServiceLocatorInterface $services
-     * @return DebuggerInterface
+     * Create and return AdapterInterface instance
+     *
+     * For use with zend-servicemanager v2; proxies to __invoke().
+     *
+     * @param ServiceLocatorInterface $container
+     * @return AdapterInterface|stdClass
      */
-    public function createService(ServiceLocatorInterface $services)
+    public function createService(ServiceLocatorInterface $container)
     {
-        /* @var $modules ModuleOptions */
-        $options = $services->get(ModuleOptionsFactory::SERVICE);
+        return $this($container, DebuggerFactory::class);
+    }
+
+    public function __invoke(ContainerInterface $container, $requestedName, array $options = null)
+    {
+        $options = $container->get(ModuleOptionsFactory::SERVICE);
         return $options->isEnabled() ? new Debugger($options) : new NullDebugger;
     }
+
 }

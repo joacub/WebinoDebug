@@ -36,9 +36,10 @@ class EventProfilerFactory
             return $services->get($this::SERVICE);
         }
 
-        $sharedEvents = $modules->getEventManager()->getSharedManager();
-        $eventProfiler = new EventProfiler($services->get(DebuggerFactory::SERVICE), $sharedEvents);
-        $sharedEvents->attachAggregate(new EventProfilerListener($eventProfiler));
+        $sharedEvents = $modules->getEventManager();
+        $eventProfiler = new EventProfiler($services->get(DebuggerFactory::SERVICE), $sharedEvents->getSharedManager());
+        $aggregate = new EventProfilerListener($eventProfiler);
+        $aggregate->attach($sharedEvents);
         $services->setService($this::SERVICE, $eventProfiler);
         return $eventProfiler;
     }

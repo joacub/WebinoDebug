@@ -12,9 +12,10 @@ namespace WebinoDebug\Service;
 use ReflectionFunction;
 use Zend\EventManager\EventInterface;
 use Zend\EventManager\EventManager;
+use Zend\EventManager\EventManagerInterface;
 use Zend\EventManager\EventsCapableInterface;
+use Zend\EventManager\SharedEventManager;
 use Zend\EventManager\SharedEventManagerInterface;
-use Zend\Stdlib\CallbackHandler;
 use Zend\Stdlib\PriorityQueue;
 
 /**
@@ -63,7 +64,7 @@ class EventProfiler
      */
     public function __construct(Debugger $debugger, SharedEventManagerInterface $sharedEvents)
     {
-        $this->debugger     = $debugger;
+        $this->debugger = $debugger;
         $this->sharedEvents = $sharedEvents;
     }
 
@@ -81,24 +82,24 @@ class EventProfiler
      */
     public function setEvent(EventInterface $event)
     {
-        $key  = $this->createEventKey($event);
+        $key = $this->createEventKey($event);
         $time = $this->debugger->timer(__CLASS__);
 
-        $this->lastKey and $this->data[$this->lastKey]['time']+= $time;
+        $this->lastKey and $this->data[$this->lastKey]['time'] += $time;
 
         if (isset($this->data[$key])) {
             return;
         }
 
         $this->data[$key] = [
-            'time'        => 0,
-            'caller'      => $this->createCallerTrace(),
-            'event'       => $this->createEventManagerCallbacks($event),
+            'time' => 0,
+            'caller' => $this->createCallerTrace(),
+//            'event' => $this->createEventManagerCallbacks($event),
             'sharedEvent' => $this->createSharedEventManagerCallbacks($event),
         ];
 
         $this->lastEvent = $event;
-        $this->lastKey   = $key;
+        $this->lastKey = $key;
     }
 
     /**
@@ -141,7 +142,7 @@ class EventProfiler
     protected function createEventManagerCallbacks(EventInterface $event)
     {
         $target = $event->getTarget();
-        $name   = $event->getName();
+        $name = $event->getName();
 
         $callbacks = [];
         if (is_object($target)
@@ -165,12 +166,12 @@ class EventProfiler
     protected function createSharedEventManagerCallbacks(EventInterface $event)
     {
         $target = $event->getTarget();
-        $id     = get_class($target);
-        $name   = $event->getName();
+        $id = get_class($target);
+        $name = $event->getName();
 
         $callbacks = [];
-        $sharedListeners = $this->sharedEvents->getListeners($id, $name);
-        if ($sharedListeners !== false) {
+        $sharedListeners = $this->sharedEvents->getListeners([$id], $name);
+        if ($sharedListeners !== false && count($sharedListeners)) {
             $callbacks = $this->resolveCallbacks($sharedListeners);
         }
 
@@ -181,12 +182,14 @@ class EventProfiler
      * @param PriorityQueue $listeners
      * @return array
      */
-    protected function resolveCallbacks(PriorityQueue $listeners)
+    protected function resolveCallbacks(array $listeners)
     {
         $callbacks = [];
-        foreach ($listeners as $listener) {
-            if ($listener instanceof CallbackHandler) {
-                $callbacks[] = $this->resolveCallbackFromListener($listener);
+        foreach ($listeners as $priority => $currentPriorityEvents) {
+            foreach ($currentPriorityEvents as $listener) {
+                if (is_callable($listener)) {
+                    $callbacks[] = $this->resolveCallbackFromListener($listener, $priority);
+                }
             }
         }
 
@@ -197,10 +200,9 @@ class EventProfiler
      * @param CallbackHandler $listener
      * @return array
      */
-    protected function resolveCallbackFromListener(CallbackHandler $listener)
+    protected function resolveCallbackFromListener(callable $listener, $priority)
     {
-        $callback = $listener->getCallback();
-        $priority = (int) $listener->getMetadatum('priority');
+        $callback = $listener;
 
         if ($callback instanceof \Closure) {
             $id = $this->resolveCallbackIdFromClosure($callback);
@@ -212,7 +214,7 @@ class EventProfiler
             $id = $callback;
 
         } elseif (is_object($callback) && is_callable($callback)) {
-            $id = $this->createMethodName((object) $callback, '__invoke');
+            $id = $this->createMethodName((object)$callback, '__invoke');
 
         } else {
             $id = 'Unknown callback';
@@ -230,10 +232,10 @@ class EventProfiler
      */
     protected function resolveCallbackIdFromClosure(\Closure $function)
     {
-        $ref   = new ReflectionFunction($function);
-        $path  = $this->filterCwd($ref->getFileName());
+        $ref = new ReflectionFunction($function);
+        $path = $this->filterCwd($ref->getFileName());
         $start = $ref->getStartLine();
-        $end   = $ref->getEndLine();
+        $end = $ref->getEndLine();
 
         return sprintf('Closure: %s:%d-%d', $path, $start, $end);
     }
