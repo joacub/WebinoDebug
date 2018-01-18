@@ -46,7 +46,7 @@ class Module implements Feature\InitProviderInterface
                 }
 
                 // start session for AJAX exception debug support
-                session_status() === PHP_SESSION_ACTIVE or session_start();
+                //session_status() === PHP_SESSION_ACTIVE or session_start();
 
                 // init debugger
                 $debugger = $services->get(DebuggerFactory::SERVICE);
