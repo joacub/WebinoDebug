@@ -40,7 +40,7 @@ class InfoPanel extends AbstractPanel implements
     /**
      * {@inheritdoc}
      */
-    public function getTab()
+    public function getTab(): string
     {
         return '';
     }
@@ -48,7 +48,7 @@ class InfoPanel extends AbstractPanel implements
     /**
      * {@inheritdoc}
      */
-    public function getPanel()
+    public function getPanel(): string
     {
         return '';
     }
