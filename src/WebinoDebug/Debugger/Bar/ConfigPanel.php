@@ -104,7 +104,7 @@ class ConfigPanel extends AbstractPanel implements
     /**
      * {@inheritdoc}
      */
-    public function getTab()
+    public function getTab(): string
     {
         return $this->createIcon('config', 'top: -3px;') . parent::getTab();
     }
@@ -112,7 +112,7 @@ class ConfigPanel extends AbstractPanel implements
     /**
      * {@inheritdoc}
      */
-    public function getPanel()
+    public function getPanel(): string
     {
         $this->content = $this->getDebugger()->dumpStr(ArrayUtils::iteratorToArray($this->getConfig()));
         return $this->renderTemplate('config');
